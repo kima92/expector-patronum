@@ -17,7 +17,7 @@ use Kima92\ExpectorPatronum\ExpectationsChecks\StartedInTimeCheck;
 use Kima92\ExpectorPatronum\Expector;
 use Kima92\ExpectorPatronum\Models\Group;
 
-class TestPatronum extends TestCase
+class PatronumTest extends TestCase
 {
 
     public function testArtisanExpectationStartedInTime()

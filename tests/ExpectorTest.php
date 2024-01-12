@@ -14,7 +14,7 @@ use Kima92\ExpectorPatronum\Expector;
 use Kima92\ExpectorPatronum\Models\ExpectationPlan;
 use Kima92\ExpectorPatronum\Models\Group;
 
-class TestExpector extends TestCase
+class ExpectorTest extends TestCase
 {
 
     public function testGeneratesNextExpectations()
