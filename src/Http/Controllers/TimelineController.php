@@ -24,42 +24,42 @@ class TimelineController extends Controller
         $ep->checkAuthenticated();
 
         return view('expector-patronum::index', [
-            "start"      => now()->subMonths(6),
-            "end"        => now()->addDay(),
-            "startFocus" => now()->subDay(),
-            "endFocus"   => now()->addDay(),
+            'start'      => now()->subMonths(6),
+            'end'        => now()->addDay(),
+            'startFocus' => now()->subDay(),
+            'endFocus'   => now()->addDay(),
         ]);
     }
 
     public function getItemsBetweenDates(Request $request, ExpectorPatronum $ep)
     {
         $ep->checkAuthenticated();
-        $groups = Group::query()->pluck("name","id")->mapWithKeys(fn ($name, $id) => [
-            $id . "_expected" => $name . " - Expected",
-            $id . "_reality" => $name . " - Reality",
+        $groups = Group::query()->pluck('name','id')->mapWithKeys(fn ($name, $id) => [
+            $id . '_expected' => $name . ' - Expected',
+            $id . '_reality' => $name . ' - Reality',
         ]);
 
         $items = Task::query()
-            ->select(["id", "expectation_plan_id", "uuid", "started_at as start", "ended_at as end"])
-            ->with("expectationPlan")
-            ->whereBetween("started_at", [$request->get("start"), $request->get("end")])
+            ->select(['id', 'expectation_plan_id', 'uuid', 'started_at as start', 'ended_at as end'])
+            ->with('expectationPlan')
+            ->whereBetween('started_at', [$request->get('start'), $request->get('end')])
             ->get()
             ->map(function (Task $task) {
                 $task = $task->fill([
-                    "content" => $task->expectationPlan->name . " - " . $task->uuid,
-                    "title"   => $task->expectationPlan->name . " - " . $task->uuid,
-                    "group"   => $task->expectationPlan->group_id . "_reality"
-                ])->unsetRelation("expectationPlan")->toArray();
+                    'content' => $task->expectationPlan->name . ' - ' . $task->uuid,
+                    'title'   => $task->expectationPlan->name . ' - ' . $task->uuid,
+                    'group'   => $task->expectationPlan->group_id . '_reality'
+                ])->unsetRelation('expectationPlan')->toArray();
 
-                $task["id"] = "task_" . $task["id"];
-                $task["plan_id"] = $task["expectation_plan_id"];
-                unset($task["expectation_plan_id"]);
+                $task['id'] = 'task_' . $task['id'];
+                $task['plan_id'] = $task['expectation_plan_id'];
+                unset($task['expectation_plan_id']);
 
                 return $task;
             });
 
         $expectedItems = Expectation::query()
-            ->select(["id", "status", "expectation_plan_id", "expected_start_date as start", DB::raw("IFNULL(expected_end_date, DATE_ADD(expected_start_date, INTERVAL 3 HOUR)) as end"),])
+            ->select(['id', 'status', 'expectation_plan_id', 'expected_start_date as start', DB::raw("IFNULL(expected_end_date, DATE_ADD(expected_start_date, INTERVAL 3 HOUR)) as end"),])
             ->whereBetween("expected_start_date", [$request->get("start"), $request->get("end")])
             ->with("expectationPlan")
             ->get()

@@ -209,7 +209,7 @@ $balls = [
     async function fetchData() {
         let start = formatDateToAPI(document.querySelector('input[name="start"]').value);
         let end = formatDateToAPI(document.querySelector('input[name="end"]').value);
-        let data = await fetch("/expector-patronum/items?start=" + start+"&end=" + end);
+        let data = await fetch("{{ config("expector-patronum.url") }}/items?start=" + start+"&end=" + end);
         data = await data.json();
 
         items = data["expected"].concat(data["reality"])

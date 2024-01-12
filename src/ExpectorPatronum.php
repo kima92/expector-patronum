@@ -30,7 +30,7 @@ class ExpectorPatronum
 
     public function __construct(private Application $app, private EloquentTaskRepository $repo, private Patronum $patronum)
     {
-        static::$authWith = fn (Request $request) => !$this->app->environment("production") && $request->user();
+        static::$authWith = fn (Request $request) => !$this->app->environment('production') && $request->user();
     }
 
     public function generateTask(ExpectationPlan $plan, string $uuid, ?Carbon $startedAt = null, ?Carbon $endedAt = null): Task
@@ -57,10 +57,10 @@ class ExpectorPatronum
     {
         // Check if the command is in the expected list
         try {
-            $likeWhat = (new ExpectationPlan())->getConnection()->getDriverName() == "mysql" ? 'CONCAT(name, \'%\')' : 'name || \'%\'';
+            $likeWhat = (new ExpectationPlan())->getConnection()->getDriverName() == 'mysql' ? 'CONCAT(name, \'%\')' : 'name || \'%\'';
             $expectPlan = Cache::remember(
-                "ExpectorPatronum:command-to-task:{$command}", now()->addHour(),
-                fn() => ExpectationPlan::query()->whereRaw("? like {$likeWhat}", [$command])->sole()
+                'ExpectorPatronum:command-to-task:' . $command, now()->addHour(),
+                fn() => ExpectationPlan::query()->whereRaw('? like ' . $likeWhat, [$command])->sole()
             );
         } catch (\Exception $e) {
             return null;
