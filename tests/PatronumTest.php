@@ -22,8 +22,6 @@ class PatronumTest extends TestCase
 
     public function testArtisanExpectationStartedInTime()
     {
-        $this->setUpWithConsoleEvents();
-
         /** @var Group $group */
         $group = Group::query()->create(['name' => 'bla', 'color' => 'green']);
         $expector = new Expector();
