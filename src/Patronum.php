@@ -19,15 +19,15 @@ class Patronum
 
     public function checkStarted(Task $task): void
     {
-        $expectation = Expectation::query()->where("expectation_plan_id", $task->expectation_plan_id)
-            ->whereBetween("expected_start_date", [$task->started_at->subMinutes(5), $task->started_at->addMinutes(5)])
-            ->where("status", ExpectationStatus::Pending)
-            ->whereNull("task_id")
+        $expectation = Expectation::query()->where('expectation_plan_id', $task->expectation_plan_id)
+            ->whereBetween('expected_start_date', [$task->started_at->subMinutes(5), $task->started_at->addMinutes(5)])
+            ->where('status', ExpectationStatus::Pending)
+            ->whereNull('task_id')
             ->latest()
-            ->first() ?? rescue(fn () => Expectation::query()->where("expectation_plan_id", $task->expectation_plan_id)
-                ->whereBetween("expected_start_date", [$task->started_at->subHour(), $task->started_at->addHour()])
-                ->where("status", ExpectationStatus::Pending)
-                ->whereNull("task_id")
+            ->first() ?? rescue(fn () => Expectation::query()->where('expectation_plan_id', $task->expectation_plan_id)
+                ->whereBetween('expected_start_date', [$task->started_at->subHour(), $task->started_at->addHour()])
+                ->where('status', ExpectationStatus::Pending)
+                ->whereNull('task_id')
                 ->latest()
                 ->sole()
             );
@@ -50,15 +50,15 @@ class Patronum
     public function markNotStartedAsFailed(): void
     {
         Expectation::query()
-            ->where("expected_start_date", "<=", now()->subMinutes(10))
-            ->where("status", ExpectationStatus::Pending)
-            ->whereNull("task_id")
-            ->eachById(fn(Expectation $expectation) => $expectation->fill(["status" => ExpectationStatus::Failed])->save());
+            ->where('expected_start_date', '<=', now()->subMinutes(10))
+            ->where('status', ExpectationStatus::Pending)
+            ->whereNull('task_id')
+            ->eachById(fn(Expectation $expectation) => $expectation->fill(['status' => ExpectationStatus::Failed])->save());
     }
 
     public function updateStatusByCheckRules(Expectation $expectation): void
     {
-        $stats = collect($expectation->checks_results)->groupBy("status")->map(fn($items) => $items->count());
+        $stats = collect($expectation->checks_results)->groupBy('status')->map(fn($items) => $items->count());
 
         $expectation->status = match ($stats[ExpectationStatus::Failed->name] ?? 0) {
             0                                   => ExpectationStatus::Success,

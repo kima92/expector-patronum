@@ -41,18 +41,18 @@ class Expector
         $expectations = [];
         foreach ($this->getExpectationsBetweenDates($startTime, $endTime) as $planData) {
             /** @var Carbon $date */
-            foreach ($planData["dates"] as $date) {
+            foreach ($planData['dates'] as $date) {
                 /** @var ExpectationPlan $plan */
-                $plan = $planData["plan"];
+                $plan = $planData['plan'];
                 $expectation = new Expectation();
                 $expectation->expectationPlan()->associate($plan);
                 $expectation->expected_start_date = $date;
                 $expectation->expected_end_date = $date->toImmutable()->addMinutes(
-                    collect($plan->rules)->firstWhere("type", EndedInTimeCheck::RULE_NAME)["in"] ?? 210
+                    collect($plan->rules)->firstWhere('type', EndedInTimeCheck::RULE_NAME)['in'] ?? 210
                 );
                 $expectation->status = ExpectationStatus::Pending;
                 $expectation->checks_results = collect($expectation->expectationPlan->rules)
-                    ->map(fn (array $rule) => array_merge($rule, ["status" => ExpectationStatus::Pending->name]))
+                    ->map(fn (array $rule) => array_merge($rule, ['status' => ExpectationStatus::Pending->name]))
                     ->all();
 
                 $expectation->save();
@@ -72,8 +72,8 @@ class Expector
                 $dates = $this->getExpectationsByPlanBetweenDates(new CronExpression($ep->schedule), $startTime, $endTime);
 
                 return $dates ? [
-                    "plan" => $ep,
-                    "dates" => $dates,
+                    'plan' => $ep,
+                    'dates' => $dates,
                 ] : null;
             })->filter();
     }
