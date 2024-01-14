@@ -22,6 +22,15 @@ use RuntimeException;
 class Expector
 {
 
+    public function generateGroup(string $name, string $color): Group
+    {
+        $group = new Group();
+        $group->name = $name;
+        $group->color = $color;
+        $group->save();
+
+        return $group;
+    }
     public function generatePlan(string $name, string $schedule, Group $group, array $rules): ExpectationPlan
     {
         new CronExpression($schedule);
