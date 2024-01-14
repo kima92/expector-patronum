@@ -8,6 +8,8 @@
 
 namespace Kima92\ExpectorPatronum;
 
+use Cron\CronExpression;
+use Illuminate\Support\Facades\Validator;
 use Kima92\ExpectorPatronum\Commands\CheckNotStartedExpectationsCommand;
 use Kima92\ExpectorPatronum\Commands\GenerateNextExpectationsCommand;
 use Kima92\ExpectorPatronum\Listeners\HandleArtisanListener;
@@ -52,6 +54,9 @@ class ExpectorPatronumServiceProvider extends ServiceProvider
             $configPath => config_path('expector-patronum.php'),
         ], 'config');
 
+        Validator::extend('cron', function ($attribute, $value, $parameters, $validator) {
+            return CronExpression::isValidExpression($value);
+        });
     }
 
     /**

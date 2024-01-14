@@ -34,10 +34,6 @@ class TimelineController extends Controller
     public function getItemsBetweenDates(Request $request, ExpectorPatronum $ep)
     {
         $ep->checkAuthenticated();
-        $groups = Group::query()->pluck('name','id')->mapWithKeys(fn ($name, $id) => [
-            $id . '_expected' => $name . ' - Expected',
-            $id . '_reality' => $name . ' - Reality',
-        ]);
 
         $items = Task::query()
             ->select(['id', 'expectation_plan_id', 'uuid', 'started_at as start', 'ended_at as end'])
@@ -85,7 +81,12 @@ class TimelineController extends Controller
                 return $ex;
             });
 
-        $groups = $groups->map(fn($name, $id) => ["id" => $id, "content" => $name])->values();
+        $groups = Group::query()->get()->reduce(function($carry, Group $group) {
+            $carry[] = ["id" => $group->id . '_expected', "content" => $group->name . ' - Expected', 'className' => 'bg-' . $group->color . '-300'];
+            $carry[] = ["id" => $group->id . '_reality', "content" => $group->name . ' - Reality', 'className' => 'bg-' . $group->color . '-300'];
+
+            return $carry;
+        }, []);
 
         return [
             "expected" => $expectedItems,

@@ -1,8 +1,8 @@
 @php use Kima92\ExpectorPatronum\Enums\ExpectationStatus;use Kima92\ExpectorPatronum\Models\ExpectationPlan; @endphp
 <?php
 $balls = [
-    ExpectationStatus::Pending->name => '<svg class="w-4 fill-current text-green-600 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-										<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+    ExpectationStatus::Pending->name => '<svg class="w-4 fill-current text-orange-400 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+										<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
 									</svg>',
     ExpectationStatus::Success->name => '<svg class="w-4 fill-current text-red-500 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
 										<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
@@ -91,7 +91,7 @@ $balls = [
                                 <p class="text-base font-medium leading-none text-white mr-2">ID</p>
                             </div>
                         </th>
-                        <th class="pl-24">
+                        <th class="pl-5">
                             <div class="flex items-center">
                                 <p class="text-sm leading-none text-white ml-2">Name</p>
                             </div>
@@ -127,7 +127,6 @@ $balls = [
                     <tr class="h-2"></tr>
                     </thead>
                     <tbody>
-
                     @foreach(ExpectationPlan::all() as $plan)
                         <tr tabindex="0" class="focus:outline-none h-12 border bg-slate-50  border-gray-100 rounded">
                             <td>
@@ -143,7 +142,7 @@ $balls = [
                                     <p class="text-base font-medium leading-none text-gray-700 mr-2">{{ $plan->id }}</p>
                                 </div>
                             </td>
-                            <td class="pl-24">
+                            <td class="pl-5">
                                 <div class="flex items-center">
                                     <p class="text-sm leading-none text-gray-600 ml-2">{{ $plan->name }}</p>
                                 </div>
@@ -162,7 +161,7 @@ $balls = [
                             </td>
                             <td class="pl-5">
                                 <div class="flex items-center">
-                                    <p class="text-sm leading-none text-gray-600 ml-2">{{ $plan->group->name }}</p>
+                                    <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-{{ $plan->group->color }}-600 bg-{{ $plan->group->color }}-200 uppercase last:mr-0 mr-1">{{ $plan->group->name }}</span>
                                 </div>
                             </td>
                             <td class="pl-5 flex flex-col">
@@ -187,6 +186,27 @@ $balls = [
                     @endforeach
                     </tbody>
                 </table>
+            </div>
+            <div>
+                <form onsubmit="generatePlan(event)" class="sm:flex mt-3">
+                    <input name="gp-name" required type="text" class="w-80 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Name">
+                    <input name="gp-schedule" required type="text" class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Schedule">
+                    <select name="gp-group" required class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        @foreach(\Kima92\ExpectorPatronum\Models\Group::all() as $group)
+                            <option value="{{$group->id}}">{{$group->name}}</option>
+                        @endforeach
+                    </select>
+                    <input type="submit" class="rounded-full mx-5 focus:outline-none focus:ring-2 py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-50 hover:ring-indigo-800" value="Generate Plan!">
+                </form>
+                <span id="gp-message" class="text-sm text-red-800"></span>
+            </div>
+            <div>
+                <form onsubmit="generateGroup(event)" class="sm:flex mt-3">
+                    <input name="gg-name" required type="text" class="w-80 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Name">
+                    <input name="gg-color" required type="text" class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color">
+                    <input type="submit" class="rounded-full mx-5 focus:outline-none focus:ring-2 py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-50 hover:ring-indigo-800" value="Generate Group!">
+                </form>
+                <span id="gp-message" class="text-sm text-red-800"></span>
             </div>
         </div>
     </div>
@@ -245,6 +265,94 @@ $balls = [
         timeline = new vis.Timeline(document.getElementById('visualization'), new vis.DataSet(filteredItems), groups, options);
     }
 
+    function generatePlan(event) {
+        event.preventDefault();
+        let message  = document.getElementById('gp-message');
+        message.textContent = '';
+        let name     = document.querySelector('input[name="gp-name"]').value;
+        let schedule = document.querySelector('input[name="gp-schedule"]').value;
+        let group    = document.querySelector('select[name="gp-group"]').value;
+
+        // Validate
+        if (!name) {
+            message.textContent = 'Please enter name';
+            return;
+        }
+        if (!schedule) {
+            message.textContent = 'Please enter schedule';
+            return;
+        }
+        if (!group) {
+            message.textContent = 'Please enter group';
+            return;
+        }
+        try {
+            cronstrue.toString(schedule);
+        } catch(e) {
+            message.textContent = 'Please fix schedule (' + schedule + ')';
+            return;
+        }
+
+        // Use the fetch API to send a POST request
+        fetch("{{ config("expector-patronum.url") }}/expectation-plans", {
+            method: 'POST',      // Specify the method
+            headers: {
+                'Content-Type': 'application/json'  // Set content type to JSON
+            },
+            body: JSON.stringify({
+                name,
+                schedule,
+                group_id: group,
+            })
+        })
+            .then(response => response.json())  // Parse the JSON response
+            .then(data => {
+                window.location.reload();
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+                message.value = error.message || "Cannot generate plan!";
+            });
+    }
+
+    function generateGroup(event) {
+        event.preventDefault();
+        let message  = document.getElementById('gg-message');
+        message.textContent = '';
+        let name     = document.querySelector('input[name="gg-name"]').value;
+        let color = document.querySelector('input[name="gg-color"]').value;
+
+        // Validate
+        if (!name) {
+            message.textContent = 'Please enter name';
+            return;
+        }
+        if (!color) {
+            message.textContent = 'Please enter color';
+            return;
+        }
+
+        // Use the fetch API to send a POST request
+        fetch("{{ config("expector-patronum.url") }}/groups", {
+            method: 'POST',      // Specify the method
+            headers: {
+                'Content-Type': 'application/json'  // Set content type to JSON
+            },
+            body: JSON.stringify({
+                name,
+                color,
+            })
+        })
+            .then(response => response.json())  // Parse the JSON response
+            .then(data => {
+                window.location.reload();
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+                message.value = error.message || "Cannot generate group!";
+            });
+    }
+
     function waitForCronstrue(attemptsLeft) {
         if (typeof cronstrue !== 'undefined') {
             // cronstrue is loaded, run your code
@@ -281,10 +389,6 @@ $balls = [
 
     document.addEventListener("DOMContentLoaded", function () {
         waitForCronstrue(10);
-
-        // document.querySelectorAll('.plan-checkbox').forEach((checkbox) => checkbox.checked = true)
     });
-
-
 </script>
 </html>
