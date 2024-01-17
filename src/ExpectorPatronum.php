@@ -33,24 +33,44 @@ class ExpectorPatronum
         static::$authWith = fn (Request $request) => !$this->app->environment('production') && $request->user();
     }
 
-    public function generateTask(ExpectationPlan $plan, string $uuid, ?Carbon $startedAt = null, ?Carbon $endedAt = null): Task
+    public function generateTask(ExpectationPlan $plan, ?string $uuid = null, ?Carbon $startedAt = null, ?Carbon $endedAt = null): Task
     {
+        $uuid ??= $this->generateUuid();
+
         return rescue(function () use ($plan, $uuid, $startedAt, $endedAt) {
             $task = $this->repo->generateTask($plan, $uuid, $startedAt, $endedAt);
             $this->patronum->checkStarted($task);
 
             return $task;
         });
-
     }
 
-    public function completeTask(string $uuid, ?Carbon $endedAt = null): Task
+    public function completeTask(?string $uuid = null, ?Carbon $endedAt = null): Task
     {
+        $uuid ??= $this->generateUuid();
+
         return rescue(function () use ($uuid, $endedAt) {
             $task = $this->repo->completeTask($uuid, $endedAt);
             $this->patronum->checkEnded($task);
+
             return $task;
         });
+    }
+
+    public function runTask(string $name, callable $taskCallable, ?string $uuid = null): mixed
+    {
+        $task = null;
+        if ($plan = ExpectationPlan::query()->where('name', $name)->first()) {
+            $task = $this->generateTask($plan, $uuid);
+        }
+
+        $result = call_user_func($taskCallable);
+
+        if ($task) {
+            $this->completeTask($task->uuid);
+        }
+
+        return $result;
     }
 
     public function generateArtisanTask(string $command): ?Task
@@ -67,7 +87,7 @@ class ExpectorPatronum
         }
 
         // Store the UUID in the cache
-        $uuid = call_user_func(self::$expectationUuidResolver ?? fn() => Str::uuid()->toString());
+        $uuid = $this->generateUuid();
         Cache::driver('array')->put('ExpectorPatronum:command:' . $command, $uuid);
 
         return rescue(fn() => $this->generateTask($expectPlan, $uuid));
@@ -101,5 +121,15 @@ class ExpectorPatronum
         if (! call_user_func_array(static::$authWith, [RequestFacade::instance()])) {
             throw new AuthenticationException();
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function generateUuid(): mixed
+    {
+        return call_user_func(
+            self::$expectationUuidResolver ?? fn() => Str::uuid()->toString()
+        );
     }
 }

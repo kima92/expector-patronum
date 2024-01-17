@@ -22,7 +22,7 @@ class StartedInTimeCheck
         $task = $expectation->task;
 
         $rules = collect($expectation->checks_results)->keyBy('type')->all();
-        if (!$rule = $rules[self::RULE_NAME] ?? null) {
+        if (!$rules[self::RULE_NAME] ?? null) {
             return;
         }
 

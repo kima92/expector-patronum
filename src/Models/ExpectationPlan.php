@@ -30,14 +30,11 @@ class ExpectationPlan extends Model
         'rules' => 'array',
     ];
 
-    // Add relationships if needed, e.g., belongsTo Group, etc.
-
-    // You might also include methods to interpret the schedule and rules
-
     public function expectations()
     {
         return $this->hasMany(Expectation::class);
     }
+
     public function group()
     {
         return $this->belongsTo(Group::class);
