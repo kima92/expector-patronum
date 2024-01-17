@@ -15,6 +15,7 @@ use Kima92\ExpectorPatronum\Commands\CheckNotStartedExpectationsCommand;
 use Kima92\ExpectorPatronum\Enums\ExpectationStatus;
 use Kima92\ExpectorPatronum\ExpectationsChecks\StartedInTimeCheck;
 use Kima92\ExpectorPatronum\Expector;
+use Kima92\ExpectorPatronum\Facades\ExpectorPatronum;
 use Kima92\ExpectorPatronum\Models\Group;
 
 class PatronumTest extends TestCase
@@ -60,5 +61,22 @@ class PatronumTest extends TestCase
         // Assert Last not started
         $expectationNotStarted->refresh();
         $this->assertEquals(ExpectationStatus::Failed, $expectationNotStarted->status);
+    }
+
+    public function testRunTaskExpectationStartedInTime()
+    {
+        /** @var Group $group */
+        $group = Group::query()->create(['name' => 'bla', 'color' => 'green']);
+        $expector = new Expector();
+
+        $plan = $expector->generatePlan('transmit 231', '0 20 * * *', $group, [['type' => StartedInTimeCheck::RULE_NAME]]);
+        $expector->generateNextExpectations(CarbonImmutable::create(2024), CarbonImmutable::create(2024, day: 2));
+
+        // Act InTime
+        Carbon::setTestNow(CarbonImmutable::parse('2024-01-01 20:00:05'));
+        ExpectorPatronum::runTask('transmit 231', fn() => null);
+
+        $expectation = $plan->expectations->first();
+        $this->assertEquals(ExpectationStatus::Success, $expectation->status);
     }
 }

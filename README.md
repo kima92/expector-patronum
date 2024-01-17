@@ -1,19 +1,22 @@
-# This is my package expector-patronum
+# ExpectorPatronum
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/kima92/expector-patronum.svg?style=flat-square)](https://packagist.org/packages/kima92/expector-patronum)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/kima92/expector-patronum/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/kima92/expector-patronum/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/kima92/expector-patronum/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/kima92/expector-patronum/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/kima92/expector-patronum.svg?style=flat-square)](https://packagist.org/packages/kima92/expector-patronum)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+ExpectorPatronum is a Laravel-based system designed to manage and monitor task expectations and actual performances. It includes features like task scheduling, real-time monitoring, and integration with calendar interfaces for effective visualization and management.
 
 ## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/expector-patronum.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/expector-patronum)
 
 We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
 
 We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+
+## Requirements
+- PHP >= 8.2
+- Laravel >= 9.0
+- MySQL or a compatible database system
 
 ## Installation
 
@@ -36,13 +39,6 @@ You can publish the config file with:
 php artisan vendor:publish --tag="expector-patronum-config"
 ```
 
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
 Optionally, you can publish the views using
 
 ```bash
@@ -51,9 +47,35 @@ php artisan vendor:publish --tag="expector-patronum-views"
 
 ## Usage
 
+Configure a new Plan (1 time) via `/expector-patronum` path, or by code:
 ```php
-$expectorPatronum = new Kima92\ExpectorPatronum();
-echo $expectorPatronum->echoPhrase('Hello, Kima92!');
+
+$group = Group::query()->create(['name' => 'bla', 'color' => 'green']);
+$expector = new Expector();
+
+$plan = $expector->generatePlan('transmit 231', '0 20 * * *', $group, [['type' => StartedInTimeCheck::RULE_NAME]]);
+```
+
+Create next expectation days (this process is already scheduled every day to 20:00)
+```php
+$expector->generateNextExpectations(CarbonImmutable::create(2024), CarbonImmutable::create(2024, day: 2));
+```
+
+Run the task
+```php
+ExpectorPatronum::runTask('my Task', fn() => sleep(5));
+```
+
+### General configurations via AppServiceProvider::register
+
+Authorization With:
+```php
+ExpectorPatronum::authWith(fn (Request $request) => !$this->app->environment('production') && $request->user())
+```
+
+Custom task identifier:
+```php
+ExpectorPatronum::setExpectationUuidResolver(fn () => Str::uuid()->toString())
 ```
 
 ## Testing
@@ -68,7 +90,11 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Contributions to ExpectorPatronum are welcome. Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch for each feature or improvement.
+3. Submit a pull request with a clear description of the changes.
 
 ## Security Vulnerabilities
 

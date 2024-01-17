@@ -31,6 +31,7 @@ class Expector
 
         return $group;
     }
+
     public function generatePlan(string $name, string $schedule, Group $group, array $rules): ExpectationPlan
     {
         new CronExpression($schedule);
@@ -72,7 +73,6 @@ class Expector
 
         return $expectations;
     }
-
 
     public function getExpectationsBetweenDates(CarbonInterface $startTime, CarbonInterface $endTime): Collection
     {
