@@ -9,11 +9,14 @@
 namespace Kima92\ExpectorPatronum\ExpectationsChecks;
 
 use Kima92\ExpectorPatronum\Enums\ExpectationStatus;
+use Kima92\ExpectorPatronum\ExpectorPatronum;
 use Kima92\ExpectorPatronum\Models\Expectation;
 use Kima92\ExpectorPatronum\Patronum;
 
 class EndedInTimeCheck
 {
+
+    public function __construct(private Patronum $patronum) { }
 
     const RULE_NAME = 'ended_in';
     public function check(Expectation $expectation): void
@@ -30,7 +33,7 @@ class EndedInTimeCheck
 
         $expectation->checks_results = $rules->values();
 
-        (new Patronum())->updateStatusByCheckRules($expectation);
+        $this->patronum->updateStatusByCheckRules($expectation);
 
         $expectation->save();
     }

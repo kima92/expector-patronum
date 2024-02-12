@@ -16,6 +16,7 @@ use Kima92\ExpectorPatronum\Enums\ExpectationStatus;
 use Kima92\ExpectorPatronum\ExpectationsChecks\StartedInTimeCheck;
 use Kima92\ExpectorPatronum\Expector;
 use Kima92\ExpectorPatronum\Facades\ExpectorPatronum;
+use Kima92\ExpectorPatronum\Models\Expectation;
 use Kima92\ExpectorPatronum\Models\Group;
 
 class PatronumTest extends TestCase

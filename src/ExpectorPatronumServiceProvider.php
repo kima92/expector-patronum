@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Validator;
 use Kima92\ExpectorPatronum\Commands\CheckNotStartedExpectationsCommand;
 use Kima92\ExpectorPatronum\Commands\GenerateNextExpectationsCommand;
 use Kima92\ExpectorPatronum\Listeners\HandleArtisanListener;
+use Kima92\ExpectorPatronum\Repositories\EloquentExpectationRepository;
 use Kima92\ExpectorPatronum\Repositories\EloquentTaskRepository;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Psr\Log\LoggerInterface;
 
 class ExpectorPatronumServiceProvider extends ServiceProvider
 {
@@ -38,8 +40,8 @@ class ExpectorPatronumServiceProvider extends ServiceProvider
         }
 
         $this->app->resolving(Schedule::class, function (Schedule $schedule) {
-            $schedule->command(CheckNotStartedExpectationsCommand::class)->everyFiveMinutes();
-            $schedule->command(GenerateNextExpectationsCommand::class)->dailyAt('20:00');
+            $schedule->command(CheckNotStartedExpectationsCommand::class)->everyFiveMinutes()->onOneServer();
+            $schedule->command(GenerateNextExpectationsCommand::class)->dailyAt('20:00')->onOneServer();
         });
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
@@ -67,7 +69,7 @@ class ExpectorPatronumServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(ExpectorPatronum::class, function ($app) {
-            return new ExpectorPatronum($app, new EloquentTaskRepository(), new Patronum());
+            return new ExpectorPatronum($app, new EloquentTaskRepository(), new EloquentExpectationRepository(), app(LoggerInterface::class));
         });
 
         $configPath = __DIR__.'/../config/expector-patronum.php';

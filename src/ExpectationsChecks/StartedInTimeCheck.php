@@ -15,6 +15,8 @@ use Kima92\ExpectorPatronum\Patronum;
 class StartedInTimeCheck
 {
 
+    public function __construct(private Patronum $patronum) { }
+
     const RULE_NAME = 'started_at';
 
     public function check(Expectation $expectation): void
@@ -32,7 +34,7 @@ class StartedInTimeCheck
 
         $expectation->checks_results = array_values($rules);
 
-        (new Patronum())->updateStatusByCheckRules($expectation);
+        $this->patronum->updateStatusByCheckRules($expectation);
 
         $expectation->save();
     }
