@@ -16,8 +16,10 @@ use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Support\Str;
 use Kima92\ExpectorPatronum\Models\ExpectationPlan;
 use Kima92\ExpectorPatronum\Models\Task;
+use Kima92\ExpectorPatronum\Repositories\EloquentExpectationRepository;
 use Kima92\ExpectorPatronum\Repositories\EloquentTaskRepository;
 use Illuminate\Support\Facades\Cache;
+use Psr\Log\LoggerInterface;
 
 class ExpectorPatronum
 {
@@ -26,19 +28,25 @@ class ExpectorPatronum
     protected static mixed $expectationUuidResolver = null;
     /** @var callable */
     protected static mixed $authWith;
+    private Patronum $patronum;
 
-
-    public function __construct(private Application $app, private EloquentTaskRepository $repo, private Patronum $patronum)
-    {
+    public function __construct(
+        private readonly Application $app,
+        public readonly EloquentTaskRepository $tasksRepo,
+        public readonly EloquentExpectationRepository $expectationRepo,
+        private LoggerInterface $logger
+    ) {
+        $this->patronum = new Patronum($this);
         static::$authWith = fn (Request $request) => !$this->app->environment('production') && $request->user();
     }
 
     public function generateTask(ExpectationPlan $plan, ?string $uuid = null, ?Carbon $startedAt = null, ?Carbon $endedAt = null): Task
     {
         $uuid ??= $this->generateUuid();
+        $this->logger->info("[ExpectorPatronum][generateTask] Got Plan {$plan->id}, generating task {$uuid}, {$startedAt}, {$endedAt}");
 
         return rescue(function () use ($plan, $uuid, $startedAt, $endedAt) {
-            $task = $this->repo->generateTask($plan, $uuid, $startedAt, $endedAt);
+            $task = $this->tasksRepo->generateTask($plan, $uuid, $startedAt, $endedAt);
             $this->patronum->checkStarted($task);
 
             return $task;
@@ -50,8 +58,10 @@ class ExpectorPatronum
         $uuid ??= $this->generateUuid();
 
         return rescue(function () use ($uuid, $endedAt) {
-            $task = $this->repo->completeTask($uuid, $endedAt);
-            $this->patronum->checkEnded($task);
+            $task = $this->tasksRepo->completeTask($uuid, $endedAt);
+            if ($task->expectation) {
+                $this->patronum->checkEnded($task);
+            }
 
             return $task;
         });
@@ -131,5 +141,15 @@ class ExpectorPatronum
         return call_user_func(
             self::$expectationUuidResolver ?? fn() => Str::uuid()->toString()
         );
+    }
+
+    public function setLogger(LoggerInterface $logger = null): void
+    {
+        $this->logger = $logger;
+    }
+
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
     }
 }

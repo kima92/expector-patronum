@@ -26,6 +26,7 @@ class EloquentTaskRepository
 
         return $task;
     }
+
     public function completeTask(string $uuid, ?Carbon $endedAt = null): Task
     {
         // Find the task by command name and update its completion status

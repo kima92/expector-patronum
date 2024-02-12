@@ -13,12 +13,16 @@ use Kima92\ExpectorPatronum\ExpectationsChecks\EndedInTimeCheck;
 use Kima92\ExpectorPatronum\ExpectationsChecks\StartedInTimeCheck;
 use Kima92\ExpectorPatronum\Models\Expectation;
 use Kima92\ExpectorPatronum\Models\Task;
+use Kima92\ExpectorPatronum\Repositories\EloquentExpectationRepository;
 
 class Patronum
 {
 
+    public function __construct(readonly private ExpectorPatronum $ep) { }
+
     public function checkStarted(Task $task): void
     {
+        $this->ep->getLogger()->info("[ExpectorPatronum\Patronum][checkStarted] Got Task {$task->uuid}");
         $expectation = Expectation::query()->where('expectation_plan_id', $task->expectation_plan_id)
             ->whereBetween('expected_start_date', [$task->started_at->subMinutes(5), $task->started_at->addMinutes(5)])
             ->where('status', ExpectationStatus::Pending)
@@ -33,27 +37,38 @@ class Patronum
             );
 
         if (!$expectation) {
+            $q = Expectation::query()->where('expectation_plan_id', $task->expectation_plan_id)
+                ->whereBetween('expected_start_date', [$task->started_at->subHour(), $task->started_at->addHour()])
+                ->where('status', ExpectationStatus::Pending)
+                ->whereNull('task_id')
+                ->latest()
+                ->take(1)->toRawSql();
+            $this->ep->getLogger()->warning("[ExpectorPatronum\Patronum][checkStarted] Expectation not found ({$q})");
+
             return;
         }
+
+        $this->ep->getLogger()->debug("[ExpectorPatronum\Patronum][checkStarted] Linking Task {$task->uuid} to Expectation {$expectation->id}");
 
         $expectation->task()->associate($task);
         $expectation->save();
 
-        (new StartedInTimeCheck())->check($expectation);
+        (new StartedInTimeCheck($this))->check($expectation);
     }
 
     public function checkEnded(Task $task): void
     {
-        (new EndedInTimeCheck())->check($task->expectation);
+        (new EndedInTimeCheck($this))->check($task->expectation);
     }
 
     public function markNotStartedAsFailed(): void
     {
-        Expectation::query()
-            ->where('expected_start_date', '<=', now()->subMinutes(10))
-            ->where('status', ExpectationStatus::Pending)
-            ->whereNull('task_id')
-            ->eachById(fn(Expectation $expectation) => $expectation->fill(['status' => ExpectationStatus::Failed])->save());
+        $this->ep->expectationRepo
+            ->eachPendingNotStarted(function(Expectation $expectation, int $i, EloquentExpectationRepository $repo) {
+                $this->ep->getLogger()->info("[ExpectorPatronum\Patronum][markNotStartedAsFailed] Failing Expectation {$expectation->id}");
+
+                $repo->failExpectation($expectation);
+            });
     }
 
     public function updateStatusByCheckRules(Expectation $expectation): void
