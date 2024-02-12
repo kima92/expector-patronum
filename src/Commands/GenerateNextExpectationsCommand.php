@@ -29,7 +29,7 @@ class GenerateNextExpectationsCommand extends Command
      */
     public function handle(Expector $expector)
     {
-        $startTime = CarbonImmutable::today()->setSeconds(0)->setMinutes(0);
+        $startTime = CarbonImmutable::tomorrow();
 
         $expector->generateNextExpectations($startTime, $startTime->addDay());
 
