@@ -40,8 +40,8 @@ class ExpectorPatronumServiceProvider extends ServiceProvider
         }
 
         $this->app->resolving(Schedule::class, function (Schedule $schedule) {
-            $schedule->command(CheckNotStartedExpectationsCommand::class)->everyFiveMinutes();
-            $schedule->command(GenerateNextExpectationsCommand::class)->dailyAt('20:00');
+            $schedule->command(CheckNotStartedExpectationsCommand::class)->everyFiveMinutes()->onOneServer();
+            $schedule->command(GenerateNextExpectationsCommand::class)->dailyAt('20:00')->onOneServer();
         });
 
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
