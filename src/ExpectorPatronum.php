@@ -86,13 +86,13 @@ class ExpectorPatronum
     public function generateArtisanTask(string $command): ?Task
     {
         // Check if the command is in the expected list
-        try {
-            $likeWhat = (new ExpectationPlan())->getConnection()->getDriverName() == 'mysql' ? 'CONCAT(name, \'%\')' : 'name || \'%\'';
-            $expectPlan = Cache::remember(
-                'ExpectorPatronum:command-to-task:' . $command, now()->addHour(),
-                fn() => ExpectationPlan::query()->whereRaw('? like ' . $likeWhat, [$command])->sole()
-            );
-        } catch (\Exception $e) {
+        $likeWhat = (new ExpectationPlan())->getConnection()->getDriverName() == 'mysql' ? 'CONCAT(name, \'%\')' : 'name || \'%\'';
+        $expectPlan = Cache::remember(
+            'ExpectorPatronum:command-to-task:' . $command, now()->addHour(),
+            fn() => ExpectationPlan::query()->whereRaw('? like ' . $likeWhat, [$command])->first() ?? false
+        );
+
+        if (!$expectPlan) {
             return null;
         }
 
