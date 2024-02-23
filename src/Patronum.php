@@ -37,12 +37,13 @@ class Patronum
             );
 
         if (!$expectation) {
-            $q = Expectation::query()->where('expectation_plan_id', $task->expectation_plan_id)
+            $q = Utils::queryToSql(Expectation::query()->where('expectation_plan_id', $task->expectation_plan_id)
                 ->whereBetween('expected_start_date', [$task->started_at->subHour(), $task->started_at->addHour()])
                 ->where('status', ExpectationStatus::Pending)
                 ->whereNull('task_id')
                 ->latest()
-                ->take(1)->toRawSql();
+                ->take(1));
+
             $this->ep->getLogger()->warning("[ExpectorPatronum\Patronum][checkStarted] Expectation not found ({$q})");
 
             return;

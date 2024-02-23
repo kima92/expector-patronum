@@ -90,8 +90,12 @@ class ExpectorPatronum
             $likeWhat = (new ExpectationPlan())->getConnection()->getDriverName() == 'mysql' ? 'CONCAT(name, \'%\')' : 'name || \'%\'';
             $expectPlan = Cache::remember(
                 'ExpectorPatronum:command-to-task:' . $command, now()->addHour(),
-                fn() => ExpectationPlan::query()->whereRaw('? like ' . $likeWhat, [$command])->sole()
+                fn() => ExpectationPlan::query()->whereRaw('? like ' . $likeWhat, [$command])->first() ?? false
             );
+
+            if (!$expectPlan) {
+                return null;
+            }
         } catch (\Exception $e) {
             return null;
         }
