@@ -1,5 +1,5 @@
 {
-    "name": "kima92/expector-patronum",
+    "name": "paymeservice/expector-patronum",
     "description": "This is my package expector-patronum",
     "keywords": [
         "kima",
@@ -18,12 +18,22 @@
     "require": {
         "php": "^8.1",
         "barryvdh/laravel-ide-helper": "^2.6",
-        "illuminate/contracts": "^9.0|^10.0"
+        "illuminate/contracts": "^9.0|^10.0",
+        "illuminate/notifications": "^9.0|^10.0",
+        "laravel-notification-channels/pagerduty": "dev-master",
+        "laravel-notification-channels/webhook": "^2.5",
+        "laravel/slack-notification-channel": "^3.0"
     },
     "require-dev": {
         "nunomaduro/collision": "^7.8",
         "orchestra/testbench": "^8.8"
     },
+    "repositories": [
+        {
+            "url": "git@github.com:arnebr/laravel-notification-pagerduty.git",
+            "type": "git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Kima92\\ExpectorPatronum\\": "src/",

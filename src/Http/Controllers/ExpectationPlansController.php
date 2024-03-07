@@ -60,4 +60,31 @@ class ExpectationPlansController extends Controller
 
         return new ExpectationPlanResource($expectationPlan);
     }
+
+    public function update(Request $request, ExpectorPatronum $ep, Expector $e, string $planId)
+    {
+        $ep->checkAuthenticated();
+
+        $validator = validator($request->json()->all(), [
+            'notification_email_address'     => ['sometimes', 'nullable', 'email'],
+            'notification_phone_number'      => ['sometimes', 'nullable'],
+            'notification_slack_webhook'     => ['sometimes', 'nullable', 'url:https'],
+            'notification_webhook'           => ['sometimes', 'nullable', 'url:https'],
+            'notification_pager_duty'        => ['sometimes', 'nullable'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => collect($validator->getMessageBag())->first()[0],
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $plan = ExpectationPlan::query()->findOrFail($planId);
+
+        $expectationPlan = $e->updatePlan(
+            $plan,
+            $validator->validated()
+        );
+
+        return new ExpectationPlanResource($expectationPlan);
+    }
 }

@@ -10,6 +10,7 @@ namespace Kima92\ExpectorPatronum\Repositories;
 
 use Kima92\ExpectorPatronum\Enums\ExpectationStatus;
 use Kima92\ExpectorPatronum\Models\Expectation;
+use Kima92\ExpectorPatronum\Notifications\ExpectationNotStarted;
 
 class EloquentExpectationRepository
 {
@@ -26,5 +27,7 @@ class EloquentExpectationRepository
     {
         $expectation->status = ExpectationStatus::Failed;
         $expectation->save();
+
+        $expectation->expectationPlan->notify(new ExpectationNotStarted($expectation));
     }
 }

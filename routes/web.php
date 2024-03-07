@@ -11,6 +11,7 @@ Route::middleware("web")
         Route::prefix("/expectation-plans")->group(function () {
             Route::get("/", [ExpectationPlansController::class, "index"]);
             Route::post("/", [ExpectationPlansController::class, "store"]);
+            Route::put("/{id}", [ExpectationPlansController::class, "update"]);
         });
         Route::prefix("/groups")->group(function () {
             Route::get("/", [GroupsController::class, "index"]);

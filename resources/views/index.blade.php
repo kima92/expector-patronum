@@ -128,7 +128,7 @@ $balls = [
                     </thead>
                     <tbody>
                     @foreach(ExpectationPlan::all() as $plan)
-                        <tr tabindex="0" class="focus:outline-none h-12 border bg-slate-50  border-gray-100 rounded">
+                        <tr onclick="togglePlanData({{$plan->id}})" tabindex="0" class="focus:outline-none h-12 border bg-slate-50  border-gray-100 rounded">
                             <td>
                                 <div class="ml-5">
                                     <div
@@ -149,7 +149,6 @@ $balls = [
                             </td>
                             <td class="pl-5">
                                 <div class="flex items-center">
-
                                     <p class="text-sm leading-none text-gray-600 ml-2">{{ $plan->created_at }}</p>
                                 </div>
                             </td>
@@ -182,6 +181,38 @@ $balls = [
                                 @endforeach
                             </td>
                         </tr>
+                        <tr class="h-24 border bg-white border-gray-100 rounded hidden" id="plan_{{$plan->id}}_data">
+                            <td colspan="8" class="p-2">
+                                <form onsubmit="updatePlan(event, {{$plan->id}})">
+                                    <div class="flex flex-col gap-2 w-1/3">
+                                        <h4 class="text-slate-700 text-lg font-black">Notifications</h4>
+                                        <div class="flex flex-row">
+                                            <div class="w-24 leading-9"><label for="data_{{$plan->id}}_email">Email:</label></div>
+                                            <div class="w-full"><input id="data_{{$plan->id}}_email"     type="text" value="{{$plan->notification_email_address}}" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></div>
+                                        </div>
+                                        <div class="flex flex-row">
+                                            <div class="w-24 leading-9"><label for="data_{{$plan->id}}_slack">Slack:</label></div>
+                                            <div class="w-full"><input id="data_{{$plan->id}}_slack" type="text" value="{{$plan->notification_slack_webhook}}"     class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></div>
+                                        </div>
+                                        <div class="flex flex-row">
+                                            <div class="w-24 leading-9"><label for="data_{{$plan->id}}_sms">SMS:</label></div>
+                                            <div class="w-full"><input id="data_{{$plan->id}}_sms"       type="text" value="{{$plan->notification_phone_number}}"  class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></div>
+                                        </div>
+                                        <div class="flex flex-row">
+                                            <div class="w-24 leading-9"><label for="data_{{$plan->id}}_webhook">WebHook:</label></div>
+                                            <div class="w-full"><input id="data_{{$plan->id}}_webhook"   type="text" value="{{$plan->notification_webhook}}"       class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></div>
+                                        </div>
+                                        <div class="flex flex-row">
+                                            <div class="w-24 leading-9"><label for="data_{{$plan->id}}_pagerDuty">PagerDuty:</label></div>
+                                            <div class="w-full"><input id="data_{{$plan->id}}_pagerDuty" type="text" value="{{$plan->notification_pager_duty}}"    class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"></div>
+                                        </div>
+
+                                        <input type="submit" class="rounded-full mx-5 focus:outline-none focus:ring-2 py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-50 hover:ring-indigo-800 cursor-pointer" value="Save">
+                                    </div>
+                                </form>
+                                <span id="data_{{$plan->id}}_message" class="text-sm text-red-800"></span>
+                            </td>
+                        </tr>
                         <tr class="h-2"></tr>
                     @endforeach
                     </tbody>
@@ -189,22 +220,22 @@ $balls = [
             </div>
             <div>
                 <form onsubmit="generatePlan(event)" class="sm:flex mt-3">
-                    <input name="gp-name" required type="text" class="w-80 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Name">
-                    <input name="gp-schedule" required type="text" class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Schedule">
-                    <select name="gp-group" required class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <input name="gp-name" required type="text" class="w-80 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Name">
+                    <input name="gp-schedule" required type="text" class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Schedule">
+                    <select name="gp-group" required class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         @foreach(\Kima92\ExpectorPatronum\Models\Group::all() as $group)
                             <option value="{{$group->id}}">{{$group->name}}</option>
                         @endforeach
                     </select>
-                    <input type="submit" class="rounded-full mx-5 focus:outline-none focus:ring-2 py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-50 hover:ring-indigo-800" value="Generate Plan!">
+                    <input type="submit" class="rounded-full mx-5 focus:outline-none focus:ring-2 py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-50 hover:ring-indigo-800 cursor-pointer" value="Generate Plan!">
                 </form>
                 <span id="gp-message" class="text-sm text-red-800"></span>
             </div>
             <div>
                 <form onsubmit="generateGroup(event)" class="sm:flex mt-3">
-                    <input name="gg-name" required type="text" class="w-80 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Name">
-                    <input name="gg-color" required type="text" class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color">
-                    <input type="submit" class="rounded-full mx-5 focus:outline-none focus:ring-2 py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-50 hover:ring-indigo-800" value="Generate Group!">
+                    <input name="gg-name" required type="text" class="w-80 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Name">
+                    <input name="gg-color" required type="text" class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color">
+                    <input type="submit" class="rounded-full mx-5 focus:outline-none focus:ring-2 py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-50 hover:ring-indigo-800 cursor-pointer" value="Generate Group!">
                 </form>
                 <span id="gp-message" class="text-sm text-red-800"></span>
             </div>
@@ -390,5 +421,47 @@ $balls = [
     document.addEventListener("DOMContentLoaded", function () {
         waitForCronstrue(10);
     });
+
+    function togglePlanData(id) {
+        var planData = document.getElementById("plan_"+id+"_data");
+        planData.classList.toggle('hidden');
+    }
+
+    function updatePlan(event, id) {
+        event.preventDefault();
+        let message  = document.getElementById('data_' + id + '_message');
+        message.textContent = '';
+
+        let email    = document.getElementById('data_' + id + '_email').value;
+        let slack    = document.getElementById('data_' + id + '_slack').value;
+        let sms      = document.getElementById('data_' + id + '_sms').value;
+        let webhook  = document.getElementById('data_' + id + '_webhook').value;
+        let pagerDuty  = document.getElementById('data_' + id + '_pagerDuty').value;
+
+        // Use the fetch API to send a POST request
+        fetch("{{ config("expector-patronum.url") }}/expectation-plans/" + id, {
+            method: 'PUT',      // Specify the method
+            headers: {
+                'Content-Type': 'application/json',  // Set content type to JSON
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+
+            },
+            body: JSON.stringify({
+                notification_email_address: email,
+                notification_slack_webhook: slack,
+                notification_phone_number: sms,
+                notification_webhook: webhook,
+                notification_pager_duty: pagerDuty,
+            })
+        })
+            .then(response => response.json())  // Parse the JSON response
+            .then(data => {
+                window.location.reload();
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Handle errors
+                message.value = error.message || "Cannot Update plan!";
+            });
+    }
 </script>
 </html>

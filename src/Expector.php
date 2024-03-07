@@ -46,6 +46,18 @@ class Expector
         return $plan;
     }
 
+    public function updatePlan(ExpectationPlan $plan, array $attributes): ExpectationPlan
+    {
+        $plan->notification_email_address = $attributes['notification_email_address'] ?? null;
+        $plan->notification_phone_number = $attributes['notification_phone_number'] ?? null;
+        $plan->notification_slack_webhook = $attributes['notification_slack_webhook'] ?? null;
+        $plan->notification_webhook = $attributes['notification_webhook'] ?? null;
+        $plan->notification_pager_duty = $attributes['notification_pager_duty'] ?? null;
+        $plan->save();
+
+        return $plan;
+    }
+
     public function generateNextExpectations(CarbonInterface $startTime, CarbonInterface $endTime): array
     {
         $expectations = [];
