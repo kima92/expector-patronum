@@ -9,8 +9,8 @@ use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 use Kima92\ExpectorPatronum\Models\Expectation;
 use Kima92\ExpectorPatronum\Models\ExpectationPlan;
-use NotificationChannels\PagerDuty\PagerDutyChannel;
-use NotificationChannels\PagerDuty\PagerDutyMessage;
+use Kima92\ExpectorPatronum\Notifications\Channels\PagerDuty\PagerDutyChannel;
+use Kima92\ExpectorPatronum\Notifications\Channels\PagerDuty\PagerDutyMessage;
 use NotificationChannels\Webhook\WebhookChannel;
 use NotificationChannels\Webhook\WebhookMessage;
 
