@@ -18,18 +18,12 @@ class Utils
             return $query->toRawSql();
         }
 
-        $queryWithBindings = $query["query"];
+        $queryWithBindings = $query->toSql();
 
-        foreach ($query["bindings"] as $binding) {
+        foreach ($query->getBindings() as $binding) {
             $queryWithBindings = preg_replace('/\?/', "'{$binding}'", $queryWithBindings, 1);
         }
 
-        $time = $query["time"] ?? null;
-
-        if ($time) {
-            $time = " [T:{$time}]";
-        }
-
-        return str_replace('`', '', $queryWithBindings) . $time;
+        return str_replace('`', '', $queryWithBindings);
     }
 }
