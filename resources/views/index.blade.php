@@ -1,14 +1,14 @@
 @php use Kima92\ExpectorPatronum\Enums\ExpectationStatus;use Kima92\ExpectorPatronum\Models\ExpectationPlan; @endphp
 <?php
 $balls = [
-    ExpectationStatus::Pending->name => '<svg class="w-4 fill-current text-orange-400 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    ExpectationStatus::Pending->name => '<svg class="w-4 fill-current text-gray-400 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
 										<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
 									</svg>',
-    ExpectationStatus::Success->name => '<svg class="w-4 fill-current text-red-500 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+    ExpectationStatus::Success->name => '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"  class="w-4 fill-current text-green-500 inline" version="1.1" id="Layer_1" viewBox="0 0 24 24" xml:space="preserve">
+                                         <path d="M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M10.8,16.8l-3.7-3.7l1.4-1.4l2.2,2.2l5.8-6.1L18,9.3  L10.8,16.8z"/>
+									</svg>',
+    ExpectationStatus::Failed->name => '<svg class="w-4 fill-current text-red-500 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
 										<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-									</svg>',
-    ExpectationStatus::Failed->name => '<svg class="w-4 fill-current text-gray-400 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-										<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
 									</svg>',
     ExpectationStatus::SomeFailed->name => '<svg class="w-4 fill-current text-orange-400 inline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
 										<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>

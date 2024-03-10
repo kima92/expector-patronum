@@ -40,8 +40,12 @@ class ExpectorPatronum
         static::$authWith = fn (Request $request) => !$this->app->environment('production') && $request->user();
     }
 
-    public function generateTask(ExpectationPlan $plan, ?string $uuid = null, ?Carbon $startedAt = null, ?Carbon $endedAt = null): Task
+    public function generateTask(ExpectationPlan $plan, ?string $uuid = null, ?Carbon $startedAt = null, ?Carbon $endedAt = null): ?Task
     {
+        if (!config("expector-patronum.isActive")) {
+            return null;
+        }
+
         $uuid ??= $this->generateUuid();
         $this->logger->info("[ExpectorPatronum][generateTask] Got Plan {$plan->id}, generating task {$uuid}, {$startedAt}, {$endedAt}");
 

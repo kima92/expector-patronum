@@ -17,6 +17,10 @@ class HandleArtisanListener
 {
     public function subscribe($events)
     {
+        if (!config("expector-patronum.isActive")) {
+            return;
+        }
+
         $events->listen(
             CommandStarting::class,
             [HandleArtisanListener::class, 'handleCommandStarting']
