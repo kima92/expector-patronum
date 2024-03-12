@@ -5,7 +5,7 @@ namespace Kima92\ExpectorPatronum\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Messages\SlackMessage;
+use Illuminate\Notifications\Slack\SlackMessage;
 use Illuminate\Notifications\Notification;
 use Kima92\ExpectorPatronum\Models\Expectation;
 use Kima92\ExpectorPatronum\Models\ExpectationPlan;
@@ -38,10 +38,10 @@ class ExpectationNotStarted extends Notification implements ShouldQueue
             $channels[] = 'slack';
         }
         if ($notifiable->notification_webhook) {
-            $channels[] = [WebhookChannel::class];
+            $channels[] = WebhookChannel::class;
         }
         if ($notifiable->notification_pager_duty) {
-            $channels[] = [PagerDutyChannel::class];
+            $channels[] = PagerDutyChannel::class;
         }
 
         return $channels;
@@ -56,10 +56,11 @@ class ExpectationNotStarted extends Notification implements ShouldQueue
     public function toMail(ExpectationPlan $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject("{$notifiable->name} Not Started In Time")
-                    ->greeting('Hi,')
-                    ->line("Expectation {$this->expectation->id} for plan {$this->expectation->expectationPlan->id}. {$this->expectation->expectationPlan->name} Not started")
-                    ->line("Expected start time: {$this->expectation->expected_start_date}");
+            ->error()
+            ->subject("{$notifiable->name} Not Started In Time")
+            ->greeting('Hi,')
+            ->line("Expectation {$this->expectation->id} for plan {$this->expectation->expectationPlan->id}. {$this->expectation->expectationPlan->name} Not started")
+            ->line("Expected start time: {$this->expectation->expected_start_date}");
     }
 
     /**
@@ -71,9 +72,9 @@ class ExpectationNotStarted extends Notification implements ShouldQueue
     public function toSlack(ExpectationPlan $notifiable): SlackMessage
     {
         return (new SlackMessage)
-            ->error()
-            ->from("ExpectorPatronum")
-            ->content("Expectation {$this->expectation->id} for plan {$this->expectation->expectationPlan->id}. {$this->expectation->expectationPlan->name} of {$this->expectation->expected_start_date} not started in time!");
+            ->username("ExpectorPatronum")
+            ->emoji(":x:")
+            ->text("Expectation {$this->expectation->id} for plan *{$this->expectation->expectationPlan->id}*. *{$this->expectation->expectationPlan->name}* of {$this->expectation->expected_start_date} not started in time!");
     }
 
     public function toWebhook(ExpectationPlan $notifiable)
