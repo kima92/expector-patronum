@@ -30,7 +30,9 @@ class CheckNotStartedExpectationsCommand extends Command
      */
     public function handle(Patronum $patronum)
     {
-        $patronum->markNotStartedAsFailed();
+        if (config("expector-patronum.isActive")) {
+            $patronum->markNotStartedAsFailed();
+        }
 
         return Command::SUCCESS;
     }
