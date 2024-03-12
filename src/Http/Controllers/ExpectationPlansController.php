@@ -68,7 +68,7 @@ class ExpectationPlansController extends Controller
         $validator = validator($request->json()->all(), [
             'notification_email_address'     => ['sometimes', 'nullable', 'email'],
             'notification_phone_number'      => ['sometimes', 'nullable'],
-            'notification_slack_webhook'     => ['sometimes', 'nullable', 'url:https'],
+            'notification_slack_webhook'     => ['sometimes', 'nullable'],
             'notification_webhook'           => ['sometimes', 'nullable', 'url:https'],
             'notification_pager_duty'        => ['sometimes', 'nullable'],
         ]);
