@@ -29,9 +29,11 @@ class GenerateNextExpectationsCommand extends Command
      */
     public function handle(Expector $expector)
     {
-        $startTime = CarbonImmutable::tomorrow();
+        if (config("expector-patronum.isActive")) {
+            $startTime = CarbonImmutable::tomorrow();
 
-        $expector->generateNextExpectations($startTime, $startTime->addDay());
+            $expector->generateNextExpectations($startTime, $startTime->addDay());
+        }
 
         return Command::SUCCESS;
     }
