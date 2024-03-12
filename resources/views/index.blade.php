@@ -237,7 +237,7 @@ $balls = [
                     <input name="gg-color" required type="text" class="ml-5 w-64 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Color">
                     <input type="submit" class="rounded-full mx-5 focus:outline-none focus:ring-2 py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-50 hover:ring-indigo-800 cursor-pointer" value="Generate Group!">
                 </form>
-                <span id="gp-message" class="text-sm text-red-800"></span>
+                <span id="gg-message" class="text-sm text-red-800"></span>
             </div>
         </div>
     </div>
@@ -328,7 +328,8 @@ $balls = [
         fetch("{{ config("expector-patronum.url") }}/expectation-plans", {
             method: 'POST',      // Specify the method
             headers: {
-                'Content-Type': 'application/json'  // Set content type to JSON
+                'Content-Type': 'application/json',  // Set content type to JSON
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
                 name,
@@ -336,7 +337,15 @@ $balls = [
                 group_id: group,
             })
         })
-            .then(response => response.json())  // Parse the JSON response
+            .then(response => {
+                if (!response.ok) { // Checks if the response status code is outside the 200-299 range
+                    return response.json().then(errorData => {
+                        // Handle HTTP error with custom error message
+                        throw new Error(errorData.error_message || 'Unknown error');
+                    });
+                }
+                return response.json(); // Parse the JSON response
+            })
             .then(data => {
                 window.location.reload();
             })
@@ -367,14 +376,23 @@ $balls = [
         fetch("{{ config("expector-patronum.url") }}/groups", {
             method: 'POST',      // Specify the method
             headers: {
-                'Content-Type': 'application/json'  // Set content type to JSON
+                'Content-Type': 'application/json',  // Set content type to JSON
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
                 name,
                 color,
             })
         })
-            .then(response => response.json())  // Parse the JSON response
+            .then(response => {
+                if (!response.ok) { // Checks if the response status code is outside the 200-299 range
+                    return response.json().then(errorData => {
+                        // Handle HTTP error with custom error message
+                        throw new Error(errorData.error_message || 'Unknown error');
+                    });
+                }
+                return response.json(); // Parse the JSON response
+            })
             .then(data => {
                 window.location.reload();
             })
@@ -454,7 +472,15 @@ $balls = [
                 notification_pager_duty: pagerDuty,
             })
         })
-            .then(response => response.json())  // Parse the JSON response
+            .then(response => {
+                if (!response.ok) { // Checks if the response status code is outside the 200-299 range
+                    return response.json().then(errorData => {
+                        // Handle HTTP error with custom error message
+                        throw new Error(errorData.error_message || 'Unknown error');
+                    });
+                }
+                return response.json(); // Parse the JSON response
+            })
             .then(data => {
                 window.location.reload();
             })
